@@ -1,0 +1,57 @@
+name: "Terraform Plan on Main Merge"
+
+on:
+  push:
+    branches:
+      - main
+
+# REQUIRED FOR OIDC AUTHENTICATION
+permissions:
+  id-token: write  # Allows requesting the JWT OIDC token from GitHub
+  contents: read   # Allows checking out the repository code
+
+jobs:
+  terraform:
+    name: "Terraform Init & Plan"
+    runs-on: ubuntu-latest
+
+    # Set the working directory to env/dev for all steps
+    defaults:
+      run:
+        working-directory: env/dev
+
+    steps:
+      # Step 1: Checkout repository code
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Step 2: Authenticate to Google Cloud using Workload Identity Federation (OIDC)
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+          create_credentials_file: true
+
+      # Step 3: Setup Terraform CLI
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.7.0"
+
+      # Step 4: Initialize Terraform inside env/dev
+      - name: Terraform Init
+        run: terraform init
+
+      # Step 5: Validate Terraform HCL Syntax
+      - name: Terraform Validate
+        run: terraform validate
+
+      # Step 6: Execute Terraform Plan Only
+      - name: Terraform Plan
+        run: terraform plan
+
+      # Step 7: Apply Terraform Changes Automatically
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
