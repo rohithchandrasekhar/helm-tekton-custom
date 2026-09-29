@@ -4,7 +4,7 @@ module "gke" {
 
   project_id          = var.project_id
   cluster_name        = var.cluster_name
-  location            = var.location
+  zone                = var.location
   deletion_protection = false
 }
 
