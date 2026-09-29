@@ -18,3 +18,18 @@ resource "helm_release" "tekton_pipeline" {
 
   timeout = 600
 }
+
+# 3. Tekton Dashboard
+resource "helm_release" "tekton_dashboard" {
+  name             = "tekton-dashboard"
+  repository       = "https://cdfoundation.github.io/tekton-helm-chart/"
+  chart            = "tekton-dashboard"
+  namespace        = "tekton-pipelines"
+  create_namespace = true
+
+  timeout = 600
+
+  depends_on = [
+    helm_release.tekton_pipeline
+  ]
+}
