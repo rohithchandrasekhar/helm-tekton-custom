@@ -1,11 +1,6 @@
 terraform {
   required_version = ">= 1.5.0"
 
-  backend "gcs" {
-    bucket = "rohith-terraform-tf-state-dev"
-    prefix = "tekton-platform/dev"
-  }
-
   required_providers {
     google = {
       source  = "hashicorp/google"
